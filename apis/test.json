@@ -1,0 +1,7 @@
+{
+  "path": "/test",
+  "address": "%{server.test}/s?wd=test",
+  "methods": [ "get" ],
+  "params": [],
+  "description": "测试GET请求"
+}

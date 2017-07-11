@@ -1,0 +1,11 @@
+[
+  {
+    "code": "test",
+    "hosts": [
+      {
+        "address": "http://baidu.com",
+        "weight": 1
+      }
+    ]
+  }
+]
