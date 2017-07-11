@@ -7,6 +7,11 @@ Linux环境下，在当前目录下，使用：
 ./meloy-api
 ~~~
 
+然后在浏览器中访问：
+~~~
+http://localhost:8000/test
+~~~
+
 # 修改为自己的服务
 * 1.编辑`config/servers.json`中的服务器代号和服务器地址
 * 2.修改`apis/test.json`中的`path`和`address`
