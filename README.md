@@ -18,7 +18,7 @@ http://localhost:8000/test
 * 3.使用`./meloy-api`命令启动服务
 
 # 文档
-持续完善中。
+[点击这里查看文档](https://github.com/iwind/MeloyApi/blob/master/docs/SUMMARY.md)
 
 # 源码
 `MeloyAPI`源码可以在这里查看： https://github.com/iwind/MeloyApi 。
