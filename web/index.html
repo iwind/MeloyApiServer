@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>MeloyAPI</title>
+    <link rel="stylesheet" href="css/semantic.min.css" type="text/css"/>
+    <link rel="stylesheet" href="css/index.css" type="text/css"/>
+    <script src="js/Array.min.js" type="text/javascript"></script>
+    <script src="js/angular.min.js" type="text/javascript"></script>
+    <script src="js/echarts.min.js" type="text/javascript"></script>
+    <script type="text/javascript">
+        window.TEA = {
+            "ACTION": {
+                "base": "",
+                "module": "",
+                "data": {}
+            }
+        };
+    </script>
+    <script src="js/angular.tea.js" type="text/javascript"></script>
+    <script src="js/index.js?v=1" type="text/javascript"></script>
+</head>
+<body ng-controller="controller" ng-app="app">
+
+<!-- 顶部导航 -->
+<div class="ui menu inverted top-nav blue">
+    <div class="item">MeloyAPI网关 v{{version}}</div>
+    <a href="https://github.com/iwind/MeloyApi/blob/master/docs/SUMMARY.md" target="_blank" class="item right">在线文档</a>
+    <a href="https://github.com/iwind/MeloyApi" target="_blank" class="item">GitHub</a>
+    <div class="item">QQ群：199435611</div>
+</div>
+
+<div id="right-box">
+    <div class="ui menu vertical api-list">
+        <div class="item grey" ng-if="apiKeyword.length > 0 && apis.length == 0">[没有找到和"{{apiKeyword}}"匹配的API]</div>
+        <a href="{{Tea.url('/web/', { 'api':api.path })}}" class="ui item blue" ng-repeat="api in apis" ng-class="{active:api.path == path}">
+            {{api.path}} <span ng-if="api.name.length > 0">- {{api.name}}</span>
+            <br ng-if="api.dones.length > 0 || api.todos.length > 0 || api.isDeprecated"/>
+            <span class="green" ng-if="api.dones.length > 0">[done]</span>
+            <span class="red" ng-if="api.todos.length > 0">[todo]</span>
+            <span class="red" ng-if="api.isDeprecated">[deprecated]</span>
+        </a>
+        <div class="ui item search">
+            <div class="ui icon input right labeled">
+                <input type="text" placeholder="搜索API..." ng-model="$parent.apiKeyword" ng-change="searchApi(apiKeyword)"/>
+                <div class="ui label" ng-click="clearSearchKeyword()">
+                    <i class="ui icon remove link" ng-if="apiKeyword.length > 0"></i>
+                    <i class="ui icon search" ng-if="apiKeyword == null || apiKeyword.length == 0"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div ng-if="api" class="api-box">
+        <table class="ui table">
+            <tr>
+                <td><strong>{{api.path}} <span ng-if="api.name.length > 0">-{{api.name}}</span></strong>
+
+                    <sup class="green" ng-if="api.dones.length > 0">[done]</sup>
+                    <sup class="red" ng-if="api.todos.length > 0">[todo]</sup>
+                    <sup class="red" ng-if="api.isDeprecated">[deprecated]</sup>
+
+                    <a href="" ng-click="refreshApi()" title="刷新"><i class="icon refresh"></i></a>
+                </td>
+            </tr>
+            <tr class="white">
+                <td>
+                    <div id="stat-chart"></div>
+                </td>
+            </tr>
+            <tr class="header">
+                <td>描述</td>
+            </tr>
+            <tr>
+                <td>
+                    <p ng-if="api.description.length > 0" ng-bind-html="api.description|allow"></p>
+                    <p ng-if="api.description == null || api.description.length == 0">[暂无描述]</p>
+                </td>
+            </tr>
+            <tr class="header">
+                <td>请求方法</td>
+            </tr>
+            <tr>
+                <td>
+                    <p ng-if="api.methods.length > 0">{{api.methods.join(" | ")}}</p>
+                    <p ng-if="api.methods == null || api.methods.length == 0">[暂无支持的请求方法]</p>
+                </td>
+            </tr>
+            <tr class="header">
+                <td>请求参数</td>
+            </tr>
+            <tr>
+                <td>
+                    <p ng-if="api.params == null || api.params.length == 0">[暂无参数]</p>
+                    <p ng-if="api.params.length > 0" ng-repeat="param in api.params">
+                        <em>{{param.type}}</em> <strong>{{param.name}}</strong> {{param.description}}
+                    </p>
+                </td>
+            </tr>
+            <tr ng-if="api.todos.length > 0" class="header">
+                <td>@TODO</td>
+            </tr>
+            <tr ng-if="api.todos.length > 0">
+                <td>
+                    <p ng-repeat="todo in api.todos">
+                        {{todo}}
+                    </p>
+                </td>
+            </tr>
+            <tr ng-if="api.dones.length > 0" class="header">
+                <td>已完成</td>
+            </tr>
+            <tr ng-if="api.dones.length > 0">
+                <td>
+                    <p ng-repeat="done in api.dones">
+                        {{done}}
+                    </p>
+                </td>
+            </tr>
+            <tr ng-if="api.roles.length > 0" class="header">
+                <td>角色</td>
+            </tr>
+            <tr ng-if="api.roles.length > 0">
+                <td>
+                    <span ng-repeat="role in api.roles">{{role}} &nbsp;</span>
+                </td>
+            </tr>
+            <tr ng-if="(api.author != null && api.author.length > 0) || api.company.length > 0" class="header">
+                <td>作者</td>
+            </tr>
+            <tr ng-if="(api.author != null && api.author.length > 0) || api.company.length > 0">
+                <td>
+                    {{api.author}} &lt;{{api.company}}&gt;
+                </td>
+            </tr>
+            <tr ng-if="api.version.length > 0" class="header">
+                <td>版本</td>
+            </tr>
+            <tr ng-if="api.version.length > 0">
+                <td>{{api.version}}</td>
+            </tr>
+            <tr class="header">
+                <td>示例响应数据 <a href="{{server.options.mockScheme}}://{{server.options.mockHost}}/@mock{{api.path}}" ng-if="api.mock.length > 0" target="_blank" title="在新窗口中显示"><i class="icon external"></i></a></td>
+            </tr>
+            <tr>
+                <td>
+                    <p ng-if="api.mock == null || api.mock.length == 0">[暂无示例响应数据]</p>
+                    <pre class="code" ng-if="api.mock.length > 0">{{api.mock}}</pre>
+                </td>
+            </tr>
+
+            <tr class="header">
+                <td>调试日志 <a href="" class="refresh-icon" title="刷新" ng-click="refreshDebugLogs(api.path)"><i class="icon refresh"></i> </a></td>
+            </tr>
+            <tr>
+                <td>
+
+                    <p ng-if="debugLogs.length == 0">[暂无调试日志]</p>
+                    <div class="logs-box" ng-if="debugLogs.length > 0">
+                        <p ng-repeat="log in debugLogs">[{{log.createdAt.dateFormat('Y-m-d H:i:s')}}][server:{{log.server}}][host:{{log.host}}][uri:{{log.uri}}]{{log.body}}</p>
+                    </div>
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+
+</body>
+</html>
